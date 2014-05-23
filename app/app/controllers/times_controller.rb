@@ -1,58 +1,22 @@
 class TimesController < ApplicationController
-# require 'httparty'
-# require 'json'
-def self.semantic_concept_search( query )
-  uri = "http://api.nytimes.com/svc/semantic/v2/" +
-        "concept/search.json?" +
-        "query=#{CGI.escape(query)}&api-key=" +
-        ENV["NYT_KEY"]
-  HTTParty.get( uri )
-end
 
-def  self.pp_semantic_concept_search( query )
-  json = semantic_concept_search( query )
-  puts "Results:\n"
-  json["results"].each do |result|
-    puts "\n\tconcept_name:\t#{result['concept_name']}"
-    puts "\tconcept_type:\t#{result['concept_type']}"
-    puts "\tconcept_uri:\t#{result['concept_uri']}" if result['concept_uri']
+  # ENV["NYT_KEY"] is key for semantic search api
+
+  # ENV["NYT_ARTICLE_KEY"] is key for article search
+  # just type:
+  # export NYT_KEY=cd4937cda3eb476576b4011d2991d735:18:63558649
+  # in command line to have api key in environment
+
+  # article search api
+
+  def self.search_articles ( query )
+    # query_formatted = query.gsub!(" ", "+")
+
+    uri = "http://api.nytimes.com/svc/search/v1/article?format=json&query=" + query + "+opposition&fields=title%2C+date%2C+url&api-key=" + ENV["NYT_ARTICLE_KEY"]
+
+    result = HTTParty.get( uri )
+    formatted_result = result.to_hash.symbolize_keys[:results]
+
   end
-end
-
-
-def self.lookup_concept_data concept_type, concept_name
-  uri = "http://api.nytimes.com/svc/semantic/v2/" +
-        "concept/name/#{concept_type}/" +
-        "#{CGI.escape(concept_name)}.json?&" +
-        "fields=all&api-key=" + ENV["NYT_KEY"]
-   HTTParty.get( uri )
-end
-
-def self.pp_lookup_concept_data concept_type, concept_name
-  puts "** type: #{concept_type} name: #{concept_name}"
-  json = lookup_concept_data(concept_type, concept_name)
-  puts "Results:\n"
-  json["results"].each do |result|    puts "\n\tLinks:"
-    result["links"].each do |link|
-      puts "\t\trelation: #{link['relation']}"
-      puts "\t\tlink: #{link['link']}"
-      puts "\t\tlink_type: #{link['link_type']}"
-    end
-    result["article_list"]["results"].each do |article|
-      puts "\tTitle: #{article['title']}"
-      puts "\tDate: #{article['date']}"
-      puts "\tBody: #{article['body']}\n\n"
-    end
-  end
-end
-
-
-#article search api
-
-def self.search_articles( query )
-  uri = "http://api.nytimes.com/svc/search/v2/articlesearch.json?&fq=subject.contains:(" + query + ")&fl=headline,keywords&api-key=" + ENV["NYT_ARTICLE_KEY"] #"
-
-   HTTParty.get( uri )
-end
 
 end
