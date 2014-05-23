@@ -10,9 +10,9 @@ class TimesController < ApplicationController
   # article search api
 
   def self.search_articles ( query )
-    # query_formatted = query.gsub!(" ", "+")
+    query_formatted = query.gsub(" ", "+")
 
-    uri = "http://api.nytimes.com/svc/search/v1/article?format=json&query=" + query + "+opposition&fields=title%2C+date%2C+url&api-key=" + ENV["NYT_ARTICLE_KEY"]
+    uri = "http://api.nytimes.com/svc/search/v1/article?format=json&query=" + query_formatted + "+opposition&fields=title%2C+date%2C+url&api-key=" + ENV["NYT_ARTICLE_KEY"]
 
     result = HTTParty.get( uri )
     formatted_result = result.to_hash.symbolize_keys[:results]
